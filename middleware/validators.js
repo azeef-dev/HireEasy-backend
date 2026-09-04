@@ -30,6 +30,14 @@ const loginValidation = [
   body('password').notEmpty().withMessage('Password is required'),
 ];
 
+const forgotPasswordValidation = [
+  body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+];
+
+const resetPasswordValidation = [
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+];
+
 const bookingValidation = [
   body('provider').notEmpty().withMessage('Provider is required'),
   body('service').trim().notEmpty().withMessage('Service is required'),
@@ -49,6 +57,8 @@ module.exports = {
   validate,
   registerValidation,
   loginValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation,
   bookingValidation,
   reviewValidation,
 };
