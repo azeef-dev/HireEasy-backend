@@ -1,6 +1,8 @@
+const crypto = require('crypto');
 const asyncHandler = require('../utils/asyncHandler');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc    Register a new customer or provider (public signup only allows these two roles)
 // @route   POST /api/auth/register
@@ -72,4 +74,76 @@ const getMe = asyncHandler(async (req, res) => {
   res.json(req.user);
 });
 
-module.exports = { register, login, getMe };
+// @desc    Request a password reset link via email
+// @route   POST /api/auth/forgot-password   body: { email }
+// @access  Public
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  // Same response whether or not the email exists, so this endpoint
+  // can't be used to check which emails are registered.
+  const genericMessage = 'If an account exists for this email, a reset link has been sent';
+
+  if (!user) {
+    return res.json({ message: genericMessage });
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  user.resetPasswordExpire = Date.now() + 30 * 60 * 1000; // 30 minutes
+  await user.save({ validateBeforeSave: false });
+
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+  try {
+    await sendEmail({
+      to: user.email,
+      subject: 'Reset your HireEasy password',
+      html: `
+        <p>Hi ${user.name},</p>
+        <p>You requested a password reset for your HireEasy account. Click the link below to set a new password. This link expires in 30 minutes.</p>
+        <p><a href="${resetUrl}">${resetUrl}</a></p>
+        <p>If you didn't request this, you can safely ignore this email.</p>
+      `,
+    });
+  } catch (error) {
+    // Don't leave a dangling, unusable token if the email failed to send
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    res.status(500);
+    throw new Error('Could not send reset email, please try again later');
+  }
+
+  res.json({ message: genericMessage });
+});
+
+// @desc    Set a new password using the token from the reset email
+// @route   POST /api/auth/reset-password/:token   body: { password }
+// @access  Public
+const resetPassword = asyncHandler(async (req, res) => {
+  const { password } = req.body;
+  const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  }).select('+resetPasswordToken +resetPasswordExpire');
+
+  if (!user) {
+    res.status(400);
+    throw new Error('This reset link is invalid or has expired');
+  }
+
+  user.password = password; // pre-save hook hashes it
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+  await user.save();
+
+  res.json({ message: 'Password has been reset successfully' });
+});
+
+module.exports = { register, login, getMe, forgotPassword, resetPassword };
