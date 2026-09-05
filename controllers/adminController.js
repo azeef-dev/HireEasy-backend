@@ -4,9 +4,7 @@ const Booking = require('../models/Booking');
 const Review = require('../models/Review');
 const { BOOKING_STATUSES } = require('../utils/constants');
 
-// ---------------------------------------------------------------------------
 // Dashboard
-// ---------------------------------------------------------------------------
 
 // @desc    Aggregate stats for the admin dashboard overview
 // @route   GET /api/admin/stats
