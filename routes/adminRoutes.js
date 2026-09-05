@@ -41,29 +41,29 @@ router.use(protect, authorize('admin', 'superadmin'));
 
 router.get('/stats', getDashboardStats);
 
-// ---- Providers ----
+//  Providers 
 router.get('/providers', getProviders);
 router.patch('/providers/:id/verify', verifyProvider);
 router.put('/providers/:id', adminProviderUpdateValidation, validate, updateProvider);
 router.patch('/providers/:id/status', statusToggleValidation, validate, toggleProviderStatus);
 router.delete('/providers/:id', deleteProvider);
 
-// ---- Customers ----
+//  Customers 
 router.get('/customers', getCustomers);
 router.put('/customers/:id', adminCustomerUpdateValidation, validate, updateCustomer);
 router.patch('/customers/:id/status', statusToggleValidation, validate, toggleCustomerStatus);
 router.delete('/customers/:id', deleteCustomer);
 
-// ---- Bookings ----
+//  Bookings 
 router.get('/bookings', getAllBookings);
 router.patch('/bookings/:id/status', adminBookingStatusValidation, validate, adminUpdateBookingStatus);
 router.delete('/bookings/:id', deleteBooking);
 
-// ---- Reviews ----
+//  Reviews 
 router.get('/reviews', getAllReviews);
 router.delete('/reviews/:id', deleteReview);
 
-// ---- Admins (Super Admin only) ----
+//  Admins (Super Admin only) 
 router.get('/admins', authorize('superadmin'), getAdmins);
 router.post('/admins', authorize('superadmin'), adminCreateValidation, validate, createAdmin);
 router.put('/admins/:id', authorize('superadmin'), adminUpdateValidation, validate, updateAdmin);
