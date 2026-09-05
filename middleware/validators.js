@@ -1,4 +1,5 @@
 const { body, validationResult } = require('express-validator');
+const { BOOKING_STATUSES } = require('../utils/constants');
 
 // Runs after any validation chain below; short-circuits with a 400
 // and a field-by-field error list if anything failed.
@@ -53,6 +54,48 @@ const reviewValidation = [
   body('comment').optional().trim().isLength({ max: 500 }),
 ];
 
+// ---- Admin panel validation ----
+
+const adminCreateValidation = [
+  body('name').trim().notEmpty().withMessage('Name is required'),
+  body('email').isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('phone').optional({ checkFalsy: true }).trim(),
+];
+
+const adminUpdateValidation = [
+  body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
+  body('email').optional().isEmail().withMessage('Valid email is required').normalizeEmail(),
+  body('phone').optional({ checkFalsy: true }).trim(),
+];
+
+const adminPasswordValidation = [
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+];
+
+const statusToggleValidation = [
+  body('isActive').isBoolean().withMessage('isActive must be true or false'),
+];
+
+const adminProviderUpdateValidation = [
+  body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
+  body('phone').optional({ checkFalsy: true }).trim(),
+  body('serviceCategory').optional().trim().notEmpty().withMessage('Service category cannot be empty'),
+  body('experience').optional().isFloat({ min: 0, max: 60 }).withMessage('Experience must be between 0 and 60'),
+  body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a positive number'),
+  body('location').optional().trim().notEmpty().withMessage('Location cannot be empty'),
+  body('bio').optional({ checkFalsy: true }).trim().isLength({ max: 500 }).withMessage('Bio must be under 500 characters'),
+];
+
+const adminCustomerUpdateValidation = [
+  body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
+  body('phone').optional({ checkFalsy: true }).trim(),
+];
+
+const adminBookingStatusValidation = [
+  body('status').isIn(BOOKING_STATUSES).withMessage('Invalid status'),
+];
+
 module.exports = {
   validate,
   registerValidation,
@@ -61,4 +104,11 @@ module.exports = {
   resetPasswordValidation,
   bookingValidation,
   reviewValidation,
+  adminCreateValidation,
+  adminUpdateValidation,
+  adminPasswordValidation,
+  statusToggleValidation,
+  adminProviderUpdateValidation,
+  adminCustomerUpdateValidation,
+  adminBookingStatusValidation,
 };
