@@ -69,9 +69,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   });
 });
 
-// ---------------------------------------------------------------------------
 // Providers
-// ---------------------------------------------------------------------------
 
 // @desc    List providers with filters (status, category, search, isActive)
 // @route   GET /api/admin/providers?status=pending|verified|all&category=&search=&isActive=
@@ -175,9 +173,7 @@ const deleteProvider = asyncHandler(async (req, res) => {
   res.json({ message: 'Provider deleted', _id: req.params.id });
 });
 
-// ---------------------------------------------------------------------------
 // Customers
-// ---------------------------------------------------------------------------
 
 // @desc    List customers with filters (search, isActive)
 // @route   GET /api/admin/customers?search=&isActive=
@@ -251,9 +247,7 @@ const deleteCustomer = asyncHandler(async (req, res) => {
   res.json({ message: 'Customer deleted', _id: req.params.id });
 });
 
-// ---------------------------------------------------------------------------
 // Bookings
-// ---------------------------------------------------------------------------
 
 // @desc    Overview of all bookings, optionally filtered by status/search
 // @route   GET /api/admin/bookings?status=&search=
@@ -318,9 +312,7 @@ const deleteBooking = asyncHandler(async (req, res) => {
   res.json({ message: 'Booking deleted', _id: req.params.id });
 });
 
-// ---------------------------------------------------------------------------
 // Reviews
-// ---------------------------------------------------------------------------
 
 // @desc    List all reviews, optionally filtered by rating/search
 // @route   GET /api/admin/reviews?rating=&search=
@@ -374,9 +366,7 @@ const deleteReview = asyncHandler(async (req, res) => {
   res.json({ message: 'Review deleted', _id: req.params.id });
 });
 
-// ---------------------------------------------------------------------------
 // Admins (Super Admin only)
-// ---------------------------------------------------------------------------
 
 // @desc    List all admin accounts
 // @route   GET /api/admin/admins
