@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 
+// Reuse the connection across warm serverless invocations instead of
+// opening a fresh one every time.
+let isConnected = false;
+
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected!");
-  } catch (error) {
-    console.error(`MongoDB connection error: ${error.message}`);
-    process.exit(1);
-  }
+  if (isConnected) return;
+
+  await mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 8000,
+  });
+  isConnected = true;
+  console.log('MongoDB connected!');
 };
 
 module.exports = connectDB;
